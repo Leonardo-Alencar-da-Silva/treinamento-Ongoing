@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treinamento Blips - Onboarding</title>
+    <style>
+        /* CSS - O Visual do Jogo */
+        :root { --primary: #0066ff; --bg: #f4f7f9; --text: #333; --success: #28a745; --danger: #dc3545; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        #game-container { background: white; width: 100%; max-width: 800px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: var(--primary); color: white; padding: 20px; text-align: center; }
+        .progress-bar { height: 8px; background: #eee; width: 100%; }
+        #progress { height: 100%; background: #4caf50; width: 0%; transition: 0.5s; }
+        .content { padding: 30px; line-height: 1.6; }
+        .hidden { display: none; }
+        .btn { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 20px; }
+        .btn:hover { opacity: 0.9; }
+        .option { display: block; width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 8px; text-align: left; cursor: pointer; background: white; }
+        .option:hover { border-color: var(--primary); background: #f0f7ff; }
+        .selected { border-color: var(--primary); background: #e0efff !important; }
+        .image-placeholder { background: #e9ecef; border: 2px dashed #ccc; padding: 40px; text-align: center; margin: 20px 0; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #f8f9fa; }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div class="header">
+        <h2 id="phase-title">Carregando...</h2>
+        <div class="progress-bar"><div id="progress"></div></div>
+    </div>
+
+    <div id="content-area" class="content">
+        </div>
+
+    <div class="content no-print" style="text-align: right; border-top: 1px solid #eee;">
+        <button id="next-btn" class="btn" onclick="app.handleNext()">Próximo</button>
+    </div>
+</div>
+
+<script>
+    /* LÓGICA DO JOGO */
+    const app = {
+        currentPhase: 0,
+        currentStep: 'theory', // 'theory' ou 'quiz'
+        scores: [],
+        userAnswers: [],
+
+        phases: [
+            {
+                title: "Fase 1: Introdução à Blips",
+                theory: `<h3>Quem é a Blips?</h3><p>A Blips é uma empresa focada em transformar a comunicação entre empresas e clientes através de soluções inteligentes. Nosso foco é escala com qualidade.</p>
+                         <h3>O que é CS?</h3><p>Customer Success (Sucesso do Cliente) é a mentalidade de garantir que o cliente atinja o resultado desejado usando nossa solução.</p>
+                         <h3>O que é Ongoing?</h3><p>É o acompanhamento contínuo. Após a venda e instalação, o CS assume para garantir que o cliente continue extraindo valor.</p>`,
+                quiz: [
+                    { q: "Qual o objetivo principal da Blips?", options: ["Apenas vender software", "Transformar a comunicação com soluções inteligentes", "Ser apenas um suporte técnico"], correct: 1 },
+                    { q: "O que acontece na fase de Ongoing?", options: ["O cliente é abandonado", "O CS faz o acompanhamento contínuo para garantir valor", "É a fase antes do contrato ser assinado"], correct: 1 }
+                ]
+            },
+            {
+                title: "Fase 2: Plataforma Blip",
+                theory: `<h3>Conhecendo a Interface</h3><p>Abaixo, veja as principais áreas da plataforma que você usará diariamente:</p>
+                         <div class="image-placeholder"><strong>[DICA: Coloque aqui o print do Dashboard Geral]</strong><br><small>Arquivo: img/dash.png</small></div>
+                         <p>1. <strong>Builder:</strong> Onde os fluxos são criados.<br>2. <strong>Desk:</strong> Atendimento humano.<br>3. <strong>Análise:</strong> Dados e métricas.</p>`,
+                quiz: [
+                    { q: "Onde os fluxos de automação são construídos?", options: ["No Desk", "No Builder", "No Bitrix"], correct: 1 }
+                ]
+            },
+            {
+                title: "Fase 3: Bitrix24 e Pipelines",
+                theory: `<h3>Fluxo de Colunas no Bitrix</h3>
+                         <ul>
+                            <li><strong>SAC:</strong> Demandas trazidas pelo time de SAC para acompanhamento.</li>
+                            <li><strong>Onboarding > Ongoing:</strong> Passagem de bastão após a instalação.</li>
+                            <li><strong>Crítico:</strong> Clientes com problemas financeiros, técnicos ou baixo uso (Health Score).</li>
+                            <li><strong>Plano de Ação:</strong> Ações estratégicas para resolver casos críticos.</li>
+                            <li><strong>Aguardando Score:</strong> Período de observação pós-plano de ação.</li>
+                            <li><strong>Fora da Plataforma:</strong> Clientes em sistemas legados.</li>
+                         </ul>`,
+                quiz: [
+                    { q: "Para onde vai um cliente que terminou a instalação?", options: ["Para Crítico", "Onboarding > Ongoing", "Para Fora da Plataforma"], correct: 1 },
+                    { q: "O que define um cliente na coluna Crítico?", options: ["Apenas se ele pedir desconto", "Problemas técnicos, usabilidade ou financeiro", "Clientes novos"], correct: 1 }
+                ]
+            },
+            {
+                title: "Fase 4: Simulador de Atendimento",
+                theory: `<h3>Hora da Prática</h3><p>Você enfrentará 3 níveis de situações reais de gestão de carteira. Analise com cuidado.</p>`,
+                quiz: [
+                    { q: "NÍVEL 1: Um cliente no 'Aguardando Score' pagou a dívida, mas ainda não voltou a usar a plataforma. O que fazer?", options: ["Mover para High Value imediatamente", "Manter em observação até o Health Score validar o uso", "Mover para Crítico de novo"], correct: 1 },
+                    { q: "NÍVEL 2: O time de SAC moveu um cartão para você. Onde ele aparece?", options: ["Na coluna SAC", "No Onboarding", "No Plano de Ação"], correct: 0 },
+                    { q: "NÍVEL 3: Um cliente 'Fora da Plataforma' quer uma nova função exclusiva do sistema novo. Qual a ação?", options: ["Dizer que não é possível", "Iniciar o processo de migração para a Blips", "Fazer um remendo no sistema antigo"], correct: 1 }
+                ]
+            }
+        ],
+
+        init() {
+            this.render();
+        },
+
+        render() {
+            const phase = this.phases[this.currentPhase];
+            const contentArea = document.getElementById('content-area');
+            document.getElementById('phase-title').innerText = phase.title;
+            document.getElementById('progress').style.width = ((this.currentPhase / this.phases.length) * 100) + "%";
+
+            if (this.currentStep === 'theory') {
+                contentArea.innerHTML = phase.theory;
+            } else {
+                let html = `<h4>Responda para avançar (Mínimo 80%):</h4>`;
+                phase.quiz.forEach((item, idx) => {
+                    html += `<p><strong>${idx + 1}. ${item.q}</strong></p>`;
+                    item.options.forEach((opt, optIdx) => {
+                        html += `<button class="option" onclick="app.selectOption(${idx}, ${optIdx}, this)">${opt}</button>`;
+                    });
+                });
+                contentArea.innerHTML = html;
+            }
+        },
+
+        selectOption(qIdx, optIdx, element) {
+            this.userAnswers[qIdx] = optIdx;
+            const buttons = element.parentElement.querySelectorAll('.option');
+            buttons.forEach(b => b.classList.remove('selected'));
+            element.classList.add('selected');
+        },
+
+        handleNext() {
+            if (this.currentStep === 'theory') {
+                this.currentStep = 'quiz';
+                this.userAnswers = [];
+                this.render();
+            } else {
+                this.validateQuiz();
+            }
+        },
+
+        validateQuiz() {
+            const phase = this.phases[this.currentPhase];
+            if (this.userAnswers.length < phase.quiz.length) {
+                alert("Responda todas as perguntas!");
+                return;
+            }
+
+            let correct = 0;
+            phase.quiz.forEach((q, idx) => {
+                if (this.userAnswers[idx] === q.correct) correct++;
+            });
+
+            const percent = (correct / phase.quiz.length) * 100;
+
+            if (percent >= 80) {
+                alert(`Aprovado! Sua nota: ${percent.toFixed(0)}%`);
+                this.scores.push({ phase: phase.title, score: percent });
+                this.currentPhase++;
+                this.currentStep = 'theory';
+                
+                if (this.currentPhase < this.phases.length) {
+                    this.render();
+                } else {
+                    this.showReport();
+                }
+            } else {
+                alert(`Nota: ${percent.toFixed(0)}%. Você precisa de 80%. Vamos revisar a teoria desta fase.`);
+                this.currentStep = 'theory';
+                this.render();
+            }
+        },
+
+        showReport() {
+            document.getElementById('phase-title').innerText = "Treinamento Concluído!";
+            document.getElementById('progress').style.width = "100%";
+            document.getElementById('next-btn').classList.add('hidden');
+            
+            let html = `<h3>Relatório de Desempenho</h3>
+                        <p>O colaborador completou todas as etapas do onboarding Blips.</p>
+                        <table>
+                            <tr><th>Fase</th><th>Nota</th></tr>`;
+            this.scores.forEach(s => {
+                html += `<tr><td>${s.phase}</td><td>${s.score.toFixed(0)}%</td></tr>`;
+            });
+            html += `</table>
+                    <br><button class="btn no-print" onclick="window.print()">Imprimir / Salvar PDF</button>
+                    <button class="btn no-print" style="background:#666" onclick="location.reload()">Reiniciar</button>`;
+            
+            document.getElementById('content-area').innerHTML = html;
+        }
+    };
+
+    app.init();
+</script>
+
+</body>
+</html>
